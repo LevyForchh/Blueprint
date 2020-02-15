@@ -23,3 +23,30 @@ extension ProxyElement {
     }
 
 }
+
+public protocol ContextElement: Element {
+    func elementRepresentation(in environment: Environment) -> Element
+}
+
+extension ContextElement {
+    public var content: ElementContent {
+        return ElementContent(builder: self.elementRepresentation(in:))
+    }
+
+    public func backingViewDescription(bounds: CGRect, subtreeExtent: CGRect?) -> ViewDescription? {
+        return nil
+    }
+}
+
+protocol ChildBuilder {
+    func build(in environment: Environment) -> Element
+}
+
+struct ChildBuilderWrapper: ChildBuilder {
+    var builder: (Environment) -> Element
+
+    func build(in environment: Environment) -> Element {
+        return builder(environment)
+    }
+}
+

@@ -1,6 +1,26 @@
 import XCTest
 @testable import BlueprintUI
 
+struct CustomView: Element {
+    var view: UIView
+
+    var content: ElementContent {
+        // For a fixed-size element:
+        // return ElementContent(intrinsicSize: CGSize(width: 100, height: 100))
+
+        // To vary the size based on constraints from parent
+        return ElementContent { (constraint) -> CGSize in
+            return CGSize(width: constraint.width.maximum, height: 100)
+        }
+    }
+
+    func backingViewDescription(bounds: CGRect, subtreeExtent: CGRect?) -> ViewDescription? {
+        return UIView.describe { (config) in
+            config.builder = { self.view }
+        }
+    }
+}
+
 
 class AlignedTests: XCTestCase {
 
