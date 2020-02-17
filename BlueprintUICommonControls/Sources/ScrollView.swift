@@ -17,6 +17,7 @@ public struct ScrollView: Element {
     public var showsHorizontalScrollIndicator: Bool = true
     public var showsVerticalScrollIndicator: Bool = true
     public var pullToRefreshBehavior: PullToRefreshBehavior = .disabled
+    public var keyboardDismissMode: UIScrollView.KeyboardDismissMode = .none
 
     public init(wrapping element: Element) {
         self.wrappedElement = element
@@ -39,11 +40,9 @@ public struct ScrollView: Element {
         return Layout(
             contentInset: contentInset,
             contentSize: contentSize,
-            centersUnderflow: centersUnderflow)
+            centersUnderflow: centersUnderflow
+        )
     }
-    
-
-
 }
 
 extension ScrollView {
@@ -141,9 +140,10 @@ extension ScrollView {
 
 }
 
-fileprivate final class ScrollerWrapperView: UIView {
+fileprivate final class ScrollerWrapperView: UIView, KeyboardObserverDelegate {
     
     let scrollView = UIScrollView()
+    let keyboardObserver = KeyboardObserver()
 
     private var refreshControl: UIRefreshControl? = nil {
 
@@ -164,6 +164,9 @@ fileprivate final class ScrollerWrapperView: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+        
+        self.keyboardObserver.delegate = self
+        
         addSubview(scrollView)
     }
 
@@ -237,6 +240,10 @@ fileprivate final class ScrollerWrapperView: UIView {
         if self.scrollView.showsHorizontalScrollIndicator != scrollView.showsHorizontalScrollIndicator {
             self.scrollView.showsHorizontalScrollIndicator = scrollView.showsHorizontalScrollIndicator
         }
+        
+        if self.scrollView.keyboardDismissMode != scrollView.keyboardDismissMode {
+            self.scrollView.keyboardDismissMode = scrollView.keyboardDismissMode
+        }
 
         var contentInset = scrollView.contentInset
 
@@ -262,8 +269,53 @@ fileprivate final class ScrollerWrapperView: UIView {
                 self.scrollView.contentOffset.x = -contentInset.left
             }
         }
-
-
     }
-
+    
+    //
+    // MARK: UIView
+    //
+    
+    public override func didMoveToWindow() {
+        super.didMoveToWindow()
+        
+        if self.window != nil {
+            self.setContentInsetWithKeyboardFrame()
+        }
+    }
+    
+    public override func didMoveToSuperview() {
+        super.didMoveToSuperview()
+        
+        if self.superview != nil {
+            self.setContentInsetWithKeyboardFrame()
+        }
+    }
+    
+    //
+    // MARK: Keyboard
+    //
+    
+    private func setContentInsetWithKeyboardFrame() {
+        guard let frame = self.keyboardObserver.currentFrame(in: self) else {
+            return
+        }
+        
+        var inset : CGFloat
+        
+        switch frame {
+        case .notVisible: inset = 0.0
+        case .visible(let frame): inset = (self.bounds.size.height - frame.origin.y)
+        }
+        
+        self.scrollView.contentInset.bottom = inset
+    }
+    
+    //
+    // MARK: KeyboardObserverDelegate
+    //
+    
+    func keyboardFrameWillChange(observer : KeyboardObserver)
+    {
+        self.setContentInsetWithKeyboardFrame()
+    }
 }
