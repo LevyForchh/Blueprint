@@ -12,21 +12,21 @@ public extension TransitionAnimation {
     
     /// Returns a `VisibilityTransition` that scales in and out.
     static var scale: Self {
-        return .with(
+        return .init(
             animations: AnimatableViewProperties(transform: .init(scaleX: 0.01, y: 0.01))
         )
     }
 
     /// Returns a `VisibilityTransition` that fades in and out.
     static var fade: Self {
-        return .with(
+        return .init(
             animations: AnimatableViewProperties(alpha: 0.0)
         )
     }
 
     /// Returns a `VisibilityTransition` that simultaneously scales and fades in and out.
     static var scaleAndFade: Self {
-        return .with(
+        return .init(
             animations: AnimatableViewProperties(
                 alpha: 0.0,
                 transform: .init(scaleX: 0.01, y: 0.01)
@@ -51,7 +51,7 @@ public extension TransitionAnimation {
         for duration : TimeInterval = 0.5
     ) -> Self {
         
-        return TransitionAnimation.with(
+        return TransitionAnimation(
             options: AnimationOptions(
                 animationKind: .spring(dampingRatio: 0.5, velocity: 0.3),
                 delay: delay,

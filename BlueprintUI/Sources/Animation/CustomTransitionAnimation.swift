@@ -77,7 +77,13 @@ public extension CustomTransitionAnimation {
         currentProperties : AnimatableViewProperties,
         completion : @escaping (Bool) -> ()
     ) {
-        guard let typedView = anyView as? Self.ViewType else {
+        guard let containerView = anyView as? TransitionContainerView else {
+            fatalError()
+        }
+        
+        let contentView = containerView.subviews.first
+        
+        guard let typedView = contentView as? Self.ViewType else {
             fatalError("CustomTransitionAnimation ('\(type(of: self))') Error: Animated view was not the expected type. Expected: '\(Self.ViewType.self)', Got: '\(type(of:anyView))'.")
         }
         

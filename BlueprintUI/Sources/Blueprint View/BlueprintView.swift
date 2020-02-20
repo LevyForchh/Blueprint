@@ -269,13 +269,12 @@ extension BlueprintView {
                     
                     UIView.performWithoutAnimation {
                         child.layoutAttributes.apply(to: controller.view)
+                        
+                        contentView.insertSubview(controller.view, at: index)
+                        
+                        childContext.add(appearanceTransition: transition)
+                        controller.update(with: child, animated: animated, context: childContext)
                     }
-                    
-                    contentView.insertSubview(controller.view, at: index)
-                    
-                    childContext.add(appearanceTransition: transition)
-                    
-                    controller.update(with: child, animated: animated, context: childContext)
                     
                     // Allow the appearance transition, if any, to take effect.
                     

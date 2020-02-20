@@ -27,16 +27,30 @@ public struct TransitionAnimation {
     // MARK: Initialization
     //
     
-    public static func with(
+    public init(
         options : AnimationOptions = .init(),
         animations : AnimatableViewProperties,
         performing : PerformRule = .ifNotNested,
         completion : @escaping (Bool) -> () = { _ in }
-    ) -> Self
+    )
     {
-        return self.init(
+        self.init(
             animationKind: .standard(options: options, properties: animations),
-            performing: performing
+            performing: performing,
+            completion: completion
+        )
+    }
+    
+    public init(
+        custom : @escaping @autoclosure () -> AnyCustomTransitionAnimation,
+        performing : PerformRule = .ifNotNested,
+        completion : @escaping (Bool) -> () = { _ in }
+    )
+    {
+        self.init(
+            animationKind: .custom(custom),
+            performing: performing,
+            completion: completion
         )
     }
     
