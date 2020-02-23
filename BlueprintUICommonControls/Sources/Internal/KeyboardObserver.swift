@@ -69,17 +69,25 @@ final class KeyboardObserver
         }
     }
     
-    private func animate(with info : NotificationInfo, _ block : @escaping () -> ())
+    private func animate(with info : NotificationInfo, _ animations : @escaping () -> ())
     {
         if info.animationDuration > 0.0 {
+            /**
+             Create an animation curve with the correct curve for showing or hiding the keyboard.
+             
+             This is unfortunately a private UIView curve. However, we can map it to the animation options' curve
+             like so: https://stackoverflow.com/questions/26939105/keyboard-animation-curve-as-int
+             */
+            let animationOptions = UIView.AnimationOptions(rawValue: info.animationCurve << 16)
+            
             UIView.animate(
                 withDuration: info.animationDuration,
                 delay: 0.0,
-                options: .init(rawValue: info.animationCurve << 16),
-                animations: block
+                options: animationOptions,
+                animations: animations
             )
         } else {
-            block()
+            animations()
         }
     }
     
@@ -110,16 +118,12 @@ final class KeyboardObserver
     
     @objc func keyboardFrameChanged(_ notification : Notification)
     {
-        let info : NotificationInfo
-        
         do {
-            info = try NotificationInfo(with: notification)
+            let info = try NotificationInfo(with: notification)
+            self.receivedUpdatedKeyboardInfo(info)
         } catch {
             assertionFailure("Blueprint could not read system keyboard notification. This error needs to be fixed in Blueprint. Error: \(error)")
-            return
         }
-        
-        self.receivedUpdatedKeyboardInfo(info)
     }
 }
 
