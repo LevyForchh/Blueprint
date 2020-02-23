@@ -71,10 +71,10 @@ struct ElementIdentifier: Hashable, CustomDebugStringConvertible {
     {
         init(reserveCapacity capacity: Int? = nil)
         {
-            self.countsByElementType = [:]
+            self.countsByKey = [:]
             
             if let capacity = capacity {
-                self.countsByElementType.reserveCapacity(capacity)
+                self.countsByKey.reserveCapacity(capacity)
             }
         }
                 
@@ -89,7 +89,7 @@ struct ElementIdentifier: Hashable, CustomDebugStringConvertible {
             )
         }
         
-        private var countsByElementType : [Key:Int]
+        private var countsByKey : [Key:Int]
         
         private func count(for type : Element.Type, key : AnyHashable?) -> Int
         {
@@ -98,9 +98,9 @@ struct ElementIdentifier: Hashable, CustomDebugStringConvertible {
                 key: key
             )
             
-            let current = self.countsByElementType[key, default: 1]
+            let current = self.countsByKey[key, default: 1]
             
-            self.countsByElementType[key] = (current + 1)
+            self.countsByKey[key] = (current + 1)
             
             return current
         }
