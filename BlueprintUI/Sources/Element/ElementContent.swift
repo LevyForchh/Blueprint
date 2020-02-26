@@ -16,7 +16,7 @@ public protocol Layoutable {
 }
 
 /// Represents the content of an element.
-public struct ElementContent: Measurable {
+public struct ElementContent {
 
     private let storage: ContentStorage
 
@@ -30,8 +30,8 @@ public struct ElementContent: Measurable {
         self.storage = builder
     }
 
-    public func measure(in constraint: SizeConstraint) -> CGSize {
-        return storage.measure(in: constraint)
+    public func measure(in constraint: SizeConstraint, environment: Environment) -> CGSize {
+        return storage.measure(in: constraint, environment: environment)
     }
 
     public var childCount: Int {
@@ -42,6 +42,21 @@ public struct ElementContent: Measurable {
         return storage.performLayout(attributes: attributes, environment: environment)
     }
 
+}
+
+extension ElementContent {
+    func measurable(in environment: Environment) -> Measurable {
+        struct EnvironmentMeasurable: Measurable {
+            var environment: Environment
+            var content: ElementContent
+
+            func measure(in constraint: SizeConstraint) -> CGSize {
+                content.measure(in: constraint, environment: environment)
+            }
+        }
+
+        return EnvironmentMeasurable(environment: environment, content: self)
+    }
 }
 
 
@@ -121,8 +136,11 @@ extension ElementContent {
 }
 
 
-fileprivate protocol ContentStorage: Measurable {
+fileprivate protocol ContentStorage {
     var childCount: Int { get }
+
+    func measure(in constraint: SizeConstraint, environment: Environment) -> CGSize
+
     func performLayout(
         attributes: LayoutAttributes,
         environment: Environment
@@ -181,7 +199,8 @@ extension ElementContent.Builder: ContentStorage {
         return children.count
     }
 
-    public func measure(in constraint: SizeConstraint) -> CGSize {
+    func measure(in constraint: SizeConstraint, environment: Environment) -> CGSize {
+        let layoutItems = self.layoutItems(in: environment)
         return layout.measure(in: constraint, items: layoutItems)
     }
 
@@ -190,7 +209,7 @@ extension ElementContent.Builder: ContentStorage {
         environment: Environment)
         -> [(identifier: ElementIdentifier, node: LayoutResultNode)]
     {
-
+        let layoutItems = self.layoutItems(in: environment)
         let childAttributes = layout.layout(size: attributes.bounds.size, items: layoutItems)
 
         var environment = environment
@@ -219,8 +238,8 @@ extension ElementContent.Builder: ContentStorage {
         return result
     }
 
-    private var layoutItems: [(LayoutType.Traits, Measurable)] {
-        return children.map { ($0.traits, $0) }
+    private func layoutItems(in environment: Environment) -> [(LayoutType.Traits, Measurable)] {
+        return children.map { ($0.traits, $0.content.measurable(in: environment)) }
     }
 
 }
@@ -228,16 +247,16 @@ extension ElementContent.Builder: ContentStorage {
 
 extension ElementContent.Builder {
 
-    fileprivate struct Child: Measurable {
+    fileprivate struct Child {
 
         var traits: LayoutType.Traits
         var key: String?
         var content: ElementContent
         var element: Element
 
-        func measure(in constraint: SizeConstraint) -> CGSize {
-            return content.measure(in: constraint)
-        }
+//        func measure(in constraint: SizeConstraint) -> CGSize {
+//            return content.measure(in: constraint)
+//        }
 
     }
 
@@ -259,7 +278,7 @@ struct BuildingStorage: ContentStorage {
         let child = buildChild(in: environment)
         let childAttributes = layout.layout(
             size: attributes.bounds.size,
-            child: child.content)
+            child: child.content.measurable(in: environment))
 
         let identifier = ElementIdentifier(key: nil, index: 0)
 
@@ -272,12 +291,10 @@ struct BuildingStorage: ContentStorage {
         return [(identifier, node)]
     }
 
-    func measure(in constraint: SizeConstraint) -> CGSize {
-        // TODO:
-        let environment = Environment()
+    func measure(in constraint: SizeConstraint, environment: Environment) -> CGSize {
         return layout.measure(
             in: constraint,
-            child: buildChild(in: environment).content)
+            child: buildChild(in: environment).content.measurable(in: environment))
     }
 
     private func buildChild(in environment: Environment) -> Element {
