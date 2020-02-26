@@ -42,17 +42,17 @@ class ElementIdentifier_FactoryTests : XCTestCase
 {
     func test_factory()
     {
-        let factory = ElementIdentifier.Factory()
+        var factory = ElementIdentifier.Factory()
         
-        let identifierA1 = factory.identifier(for: A.self, key: nil)
-        let identifierA2 = factory.identifier(for: A.self, key: nil)
-        let identifierA3 = factory.identifier(for: A.self, key: "aKey")
-        let identifierA4 = factory.identifier(for: A.self, key: "aKey")
+        let identifierA1 = factory.nextIdentifier(for: A.self, key: nil)
+        let identifierA2 = factory.nextIdentifier(for: A.self, key: nil)
+        let identifierA3 = factory.nextIdentifier(for: A.self, key: "aKey")
+        let identifierA4 = factory.nextIdentifier(for: A.self, key: "aKey")
         
-        let identifierB1 = factory.identifier(for: B.self, key: nil)
-        let identifierB2 = factory.identifier(for: B.self, key: nil)
-        let identifierB3 = factory.identifier(for: B.self, key: "aKey")
-        let identifierB4 = factory.identifier(for: B.self, key: "aKey")
+        let identifierB1 = factory.nextIdentifier(for: B.self, key: nil)
+        let identifierB2 = factory.nextIdentifier(for: B.self, key: nil)
+        let identifierB3 = factory.nextIdentifier(for: B.self, key: "aKey")
+        let identifierB4 = factory.nextIdentifier(for: B.self, key: "aKey")
         
         XCTAssertEqual(identifierA1, ElementIdentifier(elementType: A.self, key: nil, count: 1))
         XCTAssertEqual(identifierA2, ElementIdentifier(elementType: A.self, key: nil, count: 2))

@@ -135,7 +135,7 @@ extension ElementContent.Builder: ContentStorage {
         var result: [(identifier: ElementIdentifier, node: LayoutResultNode)] = []
         result.reserveCapacity(children.count)
         
-        let identifierFactory = ElementIdentifier.Factory(reserveCapacity: children.count)
+        var identifierFactory = ElementIdentifier.Factory(reserveCapacity: children.count)
 
         for index in 0..<children.count {
             let currentChildLayoutAttributes = childAttributes[index]
@@ -147,7 +147,7 @@ extension ElementContent.Builder: ContentStorage {
                 content: currentChild.content
             )
             
-            let identifier = identifierFactory.identifier(
+            let identifier = identifierFactory.nextIdentifier(
                 for: type(of: currentChild.element),
                 key: currentChild.key
             )

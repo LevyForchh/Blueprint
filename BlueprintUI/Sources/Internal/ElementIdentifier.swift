@@ -67,7 +67,7 @@ struct ElementIdentifier: Hashable, CustomDebugStringConvertible {
     /**
      Internal type used to create `ElementIdentifier` instances during view hierarchy updates.
      */
-    final class Factory
+    struct Factory
     {
         init(reserveCapacity capacity: Int? = nil)
         {
@@ -78,9 +78,9 @@ struct ElementIdentifier: Hashable, CustomDebugStringConvertible {
             }
         }
                 
-        func identifier(for type : Element.Type, key : AnyHashable?) -> ElementIdentifier
+        mutating func nextIdentifier(for type : Element.Type, key : AnyHashable?) -> ElementIdentifier
         {
-            let count = self.count(for: type, key: key)
+            let count = self.nextCount(for: type, key: key)
             
             return ElementIdentifier(
                 elementType: type,
@@ -91,7 +91,7 @@ struct ElementIdentifier: Hashable, CustomDebugStringConvertible {
         
         private var countsByKey : [Key:Int]
         
-        private func count(for type : Element.Type, key : AnyHashable?) -> Int
+        mutating private func nextCount(for type : Element.Type, key : AnyHashable?) -> Int
         {
             let key = Key(
                 elementType: ObjectIdentifier(type),
