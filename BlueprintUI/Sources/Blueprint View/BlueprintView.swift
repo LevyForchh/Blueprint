@@ -52,7 +52,7 @@ public final class BlueprintView: UIView {
         
         rootController = NativeViewController(
             node: NativeViewNode(
-                content: RootNativeNodeView.describe() { _ in },
+                content: UIView.describe() { _ in },
                 layoutAttributes: LayoutAttributes(),
                 children: []))
     
@@ -118,7 +118,7 @@ public final class BlueprintView: UIView {
         rootController.view.frame = bounds
         
         let rootNode = NativeViewNode(
-            content: RootNativeNodeView.describe() { _ in },
+            content: UIView.describe() { _ in },
             layoutAttributes: LayoutAttributes(frame: bounds),
             children: viewNodes
         )
@@ -142,22 +142,6 @@ public final class BlueprintView: UIView {
 }
 
 extension BlueprintView {
-    
-    /**
-     The view which is used as the root node in every ` BlueprintView`.
-     
-     For example, The hierarchy for a `BlueprintView` will look like this:
-     
-     ```
-     BlueprintView
-         RootNativeNodeView
-             ElementView1
-             ElementView2
-             ElementView3
-             ...
-     ```
-     */
-    final class RootNativeNodeView : UIView { }
     
     final class NativeViewController {
 

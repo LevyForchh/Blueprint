@@ -15,16 +15,22 @@ import UIKit
 extension BlueprintView
 {
     internal var rootNativeElementViews : [UIView] {
-        self.rootNativeNodeView?.subviews ?? []
-    }
-    
-    private var rootNativeNodeView : RootNativeNodeView? {
-        for subview in self.subviews {
-            if let view = subview as? RootNativeNodeView {
-                return view
-            }
-        }
         
-        return nil
+        /**
+         Note: Assumes the `BlueprintView` has exactly one
+         subview (root view-backed element provided by the view itself),
+         which then contains all root view-backed elements. Eg:
+         
+         ```
+           BlueprintView
+               UIView
+                   ElementView1
+                   ElementView2
+                   ElementView3
+                   ...
+         ```
+         */
+        
+        self.subviews.first?.subviews ?? []
     }
 }
